@@ -4,6 +4,7 @@ export default defineComponent({
   name: 'MeetupCover',
 
   props: {
+
     title: {
       type: String,
     },
@@ -11,6 +12,7 @@ export default defineComponent({
     image: {
       type: String,
     }
+
   },
 
   template: `

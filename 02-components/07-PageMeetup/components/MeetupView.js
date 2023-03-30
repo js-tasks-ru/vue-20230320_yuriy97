@@ -32,11 +32,12 @@ export default defineComponent({
   template: `
     <div>
       <MeetupCover :title="meetup.title" :image="meetup.image"/>
+
       <UiContainer>
         <div class="meetup">
           <div class="meetup__content">
             <MeetupDescription :description="meetup.description" />            
-            <MeetupAgenda v-if='meetup.agenda.length > 0' :agenda="meetup.agenda"/>
+            <MeetupAgenda v-if='meetup.agenda.length>0' :agenda="meetup.agenda"/>
             <UiAlert v-else>Программа пока пуста...</UiAlert>
           </div>
           <div class="meetup__aside">
