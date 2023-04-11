@@ -109,8 +109,9 @@ export default {
 
   methods: {
     setMonth(direction = 1){
-      const date = new Date(this.currentDate.setMonth(this.currentDate.getMonth() + direction));
-      this.currentDate = new Date(date);
+      const oldDate = this.currentDate.getDate() 
+      this.currentDate = new Date(this.currentDate.setMonth(this.currentDate.getMonth() + direction));
+      if (this.currentDate.getDate() !== oldDate) this.currentDate.setDate(0);
     },
     activeMeetups(date){
       return this.meetups.filter(item => {
