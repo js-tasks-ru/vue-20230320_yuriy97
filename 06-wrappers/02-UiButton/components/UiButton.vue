@@ -40,7 +40,7 @@ export default {
    
       return ['button',
       `button_${this.variant}`,
-      this.$attrs.block ==='' || this.$attrs.block ? 'button_block' : ''
+      this.$attrs.block === '' || this.$attrs.block ? 'button_block' : ''
     ]
     }
   },    
