@@ -1,19 +1,16 @@
 <template>
-  <component 
-    v-bind="$attrs"
-    :is="tag" 
-    :class="classes"
-    :type="tag==='button' ? type: null" >
-    <slot/>
+  <component :is="tag" 
+             :class="classes" 
+             :type="tag === 'button' ? type : null" 
+             :block="block">
+    <slot />
   </component>
 </template>
 
 <script>
 export default {
   name: 'UiButton',
-  inheritAttrs: false,
-
-
+  
   props: {
     tag: {
       type: [String, Object],
@@ -23,28 +20,33 @@ export default {
       type: String,
       default: 'secondary',
       validator(value) {
-        return ['primary','secondary','danger'].includes(value);
+        return ['primary', 'secondary', 'danger'].includes(value);
       }
-  
     },
     type: {
       type: String,
-      default:'button',
+      default: 'button',
       validator(value) {
-        return ['button','submit'].includes(value);
-      }
+        return ['button', 'submit'].includes(value);
+      },
+    },
+    block: {
+      type: Boolean,
+      default: false,
     }
   },
+
   computed: {
-    classes(){
-   
-      return ['button',
-      `button_${this.variant}`,
-      this.$attrs.block === '' || this.$attrs.block ? 'button_block' : ''
-    ]
-    }
-  },    
+
+    classes() {
   
+      return ['button',
+        `button_${this.variant}`,
+        { 'button_block': this.block }
+      ]
+    }
+  },
+
 };
 </script>
 
