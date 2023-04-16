@@ -1,8 +1,18 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview image-uploader__preview-loading" style="--bg-url: url('/link.jpeg')">
-      <span class="image-uploader__text">Загрузить изображение</span>
-      <input type="file" accept="image/*" class="image-uploader__input" />
+    <label 
+      class="image-uploader__preview" 
+      :class="{'image-uploader__preview-loading': isLoading}" 
+      :style="image ?`--bg-url: url(${image})`:''">
+      <span class="image-uploader__text">{{ previewText }}</span>
+      <input 
+        type="file" 
+        accept="image/*" 
+        class="image-uploader__input"
+        ref="input"
+        v-bind="$attrs" 
+        @change="uploadImage"
+        @click="removeImage"/>
     </label>
   </div>
 </template>
@@ -10,6 +20,63 @@
 <script>
 export default {
   name: 'UiImageUploader',
+
+  inheritAttrs: false,
+
+  props: {
+    preview: {
+      type: String,
+      default:''
+    },
+    uploader: Function,
+  },
+
+  emits: ['select', 'upload', 'error', 'remove'],
+
+  data() {
+    return {
+      isLoading: false,
+      image: this.preview,
+    };
+  },
+
+  computed: {
+    previewText(){
+      return this.isLoading ? 'Загрузка...' : this.image ? 'Удалить изображение?' : 'Загрузить изображение';
+    },
+  },
+
+  methods: {
+    async uploadImage($event){
+      const file = $event.target.files[0];
+      this.$emit('select',file);
+      
+      if(this.uploader){
+        try{
+          this.isLoading = true;
+          const result = await this.uploader(file);
+          this.image = result.image;
+          this.$emit('upload',result);
+
+        }catch(error){
+          this.$refs.input.value = '';
+          this.$emit('error',error);
+        } 
+      }else
+        this.image = URL.createObjectURL(file);
+      
+      this.isLoading = false;
+    },
+
+    removeImage($event){
+      if(!this.isLoading && this.image){
+        $event.preventDefault();
+        this.image = '';
+        this.$refs.input.value = '';
+        this.$emit('remove');
+      }
+    }
+  }
 };
 </script>
 
