@@ -1,31 +1,34 @@
 <template>
   <fieldset class="agenda-item-form">
-    <button type="button" class="agenda-item-form__remove-button">
+    <button type="button" class="agenda-item-form__remove-button" @click="$emit('remove')">
       <UiIcon icon="trash" />
     </button>
 
     <UiFormGroup>
-      <UiDropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" />
+      <UiDropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" v-model="localAgendaItem.type" />
     </UiFormGroup>
 
     <div class="agenda-item-form__row">
       <div class="agenda-item-form__col">
         <UiFormGroup label="Начало">
-          <UiInput type="time" placeholder="00:00" name="startsAt" />
+          <UiInput type="time" placeholder="00:00" name="startsAt" v-model="localAgendaItem.startsAt" />
         </UiFormGroup>
       </div>
       <div class="agenda-item-form__col">
         <UiFormGroup label="Окончание">
-          <UiInput type="time" placeholder="00:00" name="endsAt" />
+          <UiInput type="time" placeholder="00:00" name="endsAt" v-model="localAgendaItem.endsAt" />
         </UiFormGroup>
       </div>
     </div>
-
-    <UiFormGroup label="Заголовок">
-      <UiInput name="title" />
-    </UiFormGroup>
-    <UiFormGroup label="Описание">
-      <UiInput multiline name="description" />
+    <UiFormGroup
+        v-for="(item) in $options.agendaItemFormSchemas[localAgendaItem.type]"
+        :key = item.props.name
+        :label="item.label">
+      <component
+        :is="item.component"
+        v-bind="item.props"
+        v-model="localAgendaItem[item.props.name]"
+      />
     </UiFormGroup>
   </fieldset>
 </template>
@@ -70,17 +73,7 @@ const talkLanguageOptions = [
   { value: 'EN', text: 'EN' },
 ];
 
-/**
- * @typedef FormItemSchema
- * @property {string} label
- * @property {string|object} component
- * @property {object} props
- */
-/** @typedef {string} AgendaItemField */
-/** @typedef {string} AgendaItemType */
-/** @typedef {Object.<AgendaItemType, FormItemSchema>} FormSchema */
 
-/** @type FormSchema */
 const commonAgendaItemFormSchema = {
   title: {
     label: 'Нестандартный текст (необязательно)',
@@ -91,7 +84,7 @@ const commonAgendaItemFormSchema = {
   },
 };
 
-/** @type {Object.<AgendaItemField, FormSchema>} */
+
 const agendaItemFormSchemas = {
   registration: commonAgendaItemFormSchema,
   opening: commonAgendaItemFormSchema,
@@ -151,13 +144,17 @@ const agendaItemFormSchemas = {
   },
 };
 
+let itemId = -1
+
 export default {
   name: 'MeetupAgendaItemForm',
 
   components: { UiIcon, UiFormGroup, UiInput, UiDropdown },
 
+
   agendaItemTypeOptions,
   agendaItemFormSchemas,
+  itemId,
 
   props: {
     agendaItem: {
@@ -165,6 +162,49 @@ export default {
       required: true,
     },
   },
+
+  emits:['remove','update:agendaItem'],
+
+  data() {
+    return {
+      localAgendaItem: {...this.agendaItem}
+    }
+  },
+
+  watch: {
+    localAgendaItem:{
+      deep: true,
+      handler(){
+        this.$emit('update:agendaItem',{...this.localAgendaItem})
+      },
+    }, 
+    'localAgendaItem.startsAt': {
+      handler(newValue,oldValue){
+        
+        let hours = parseInt(newValue);
+        let minutes = newValue.slice(3);
+        const newTime = new Date(0);
+        newTime.setUTCHours(hours,minutes);
+
+        hours = parseInt(this.localAgendaItem.endsAt);
+        minutes = this.localAgendaItem.endsAt.slice(3);
+        const endsAt = new Date(0);
+        endsAt.setUTCHours(hours,minutes);
+  
+        hours = parseInt(oldValue);
+        minutes = oldValue.slice(3);
+        const oldTime = new Date(0);
+        oldTime.setUTCHours(hours,minutes);
+
+        const timeDifference = endsAt.getTime() - oldTime.getTime();
+        endsAt.setTime(newTime.getTime() + timeDifference)
+
+        this.localAgendaItem.endsAt = endsAt.toISOString().slice(11, 16);
+      } 
+    }
+    
+  },
+
 };
 </script>
 
