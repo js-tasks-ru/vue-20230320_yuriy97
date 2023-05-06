@@ -37,7 +37,7 @@ const config = {
     customExportConditions: ['node', 'node-addons'],
   },
 
-  watchPlugins: [require.resolve('jest-watch-typeahead/filename'), require.resolve('jest-watch-typeahead/testname')],
+ // watchPlugins: [require.resolve('jest-watch-typeahead/filename'), require.resolve('jest-watch-typeahead/testname')],
 
   clearMocks: true,
 };
