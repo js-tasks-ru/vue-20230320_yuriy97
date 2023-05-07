@@ -10,5 +10,29 @@ export function useProgress() {
 }
 
 export function createProgress({ container, router } = {}) {
-  // Решение
+
+  const addDefaultContainer = () => document.body.appendChild(document.createElement('div'));
+  const topProgressBarInstance = createApp(TheTopProgressBar).mount(container ?? addDefaultContainer());
+
+  const topProgressBar = {
+
+    start: topProgressBarInstance.start,
+    finish: topProgressBarInstance.finish,
+    fail: topProgressBarInstance.fail,
+
+    install(app) {
+      app.provide(PROGRESS_KEY, topProgressBar);
+    },
+  };
+
+  if (router) {
+
+    router.beforeEach(topProgressBar.start);
+
+    router.afterEach(topProgressBar.finish);
+
+    router.onError(topProgressBar.fail)
+  }
+
+  return topProgressBar;
 }
